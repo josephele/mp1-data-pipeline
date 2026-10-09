@@ -26,7 +26,7 @@ def load_json(filepath):
 
 def load_yaml(filepath):
     """Load a YAML file into a Python object.filepath is a Path object."""
-    with open("sample.yaml", "r") as f:
+    with open(filepath, "r") as f:
         config = yaml.safe_load(f)
     logging.info(f"Loaded YAML file: {filepath}")
     return config 
