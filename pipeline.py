@@ -16,6 +16,7 @@ import logging
 import sys
 from pathlib import Path
 from data_loaders import load_data
+from data_processor import process_data, create_cleaning_report 
 
 logger = logging.getLogger(__name__)
 
@@ -24,7 +25,7 @@ def setup_logging(verbose=False):
     level = logging.DEBUG if verbose else logging.INFO
     logging.basicConfig(
         level=level,
-        format="%(asctime)s - %(levelname)s - %(message)s",datefmt="%H:%M:%S"
+        format="%(asctime)s %(levelname)-8s %(name)s — %(message)s"
     )
     return logging.getLogger(__name__)
 
@@ -36,17 +37,17 @@ def parse_arguments():
     "--input", "-i", 
     required=True, 
     help="Path to the input data file")
+
+    parser.add_argument(
+    "--config", 
+    required=True, 
+    help="Path to the YAML config file"
+    )
     
     parser.add_argument(
     "--output", "-o", 
     required=True, 
     help="Path to the output data file"
-)   
-    parser.add_argument(
-    "--format",
-    choices=["csv", "json"],
-    default="csv",
-    help="Output format"
 )   
     parser.add_argument(
     "--verbose", "-v",
@@ -72,13 +73,28 @@ def main():
     args = parse_arguments()
     setup_logging(args.verbose)
     logger.debug(
-        f"Arguments parsed: input={args.input}, output={args.output}, format={args.format}") 
+        f"Arguments parsed: input={args.input}, config={args.config}, output={args.output}") 
     if not validate_input(args.input): 
         sys.exit(1) 
+    else: validate_input(args.config)
     try: 
         data = load_data(args.input)
+        config = load_data(args.config)
     except ValueError: 
         sys.exit(1)
+    df_original = data.copy()
+    try: 
+        cleaned = process_data(data, config)
+    except ValueError: 
+        sys.exit(1)
+    report = create_cleaning_report(df_original, cleaned)
+    print(report)
+    logger.info(f"Processing results{len(df_original)} to {len(cleaned)} rows")
+
+    cleaned.to_csv(args.output, index=False)
+    logger.info(f"Saved clean results")
+
+
 
         
  # TODO: implement
