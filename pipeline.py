@@ -26,14 +26,6 @@ validate_input,
 
 logger = logging.getLogger(__name__)
 
-def setup_logging(verbose=False):
-    """Configure logging for the pipeline."""
-    level = logging.DEBUG if verbose else logging.INFO
-    logging.basicConfig(
-        level=level,
-        format="%(asctime)s %(levelname)-8s %(name)s — %(message)s"
-    )
-    return logging.getLogger(__name__)
 
 def parse_arguments():
     """Parse command-line arguments."""
@@ -63,14 +55,6 @@ def parse_arguments():
     return parser.parse_args()
 
  # TODO: implement
-def validate_input(filepath):
-    """Check whether the input path exists and is a file."""
-    if not Path(filepath).is_file(): 
-        logger.error(f"Input File Not Found: {filepath}")
-        return False
-    else: 
-        logger.info(f"Input File Vaidated: {filepath}")
-        return True 
    
 
 

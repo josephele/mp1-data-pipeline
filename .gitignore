@@ -1,12 +1,14 @@
-``gitignore
+
 # Python cache
 __pycache__/
 *.py[cod]
 *.pyc
+.mypy_cache
 # IDE
 .vscode/
 .idea/
 # OS
 .DS_Store
 Thumbs.db
-```
+venv/
+output/
