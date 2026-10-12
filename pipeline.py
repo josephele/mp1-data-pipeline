@@ -11,12 +11,18 @@ python pipeline.py --input data.csv --output results.json --format json --
 verbose
 """
 import argparse
-from html import parser
 import logging
 import sys
 from pathlib import Path
-from data_loaders import load_data
-from data_processor import process_data, create_cleaning_report 
+from src import (
+create_cleaning_report,
+load_data,
+process_data,
+save_data,
+setup_logging,
+validate_dataframe,
+validate_input,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -76,23 +82,31 @@ def main():
         f"Arguments parsed: input={args.input}, config={args.config}, output={args.output}") 
     if not validate_input(args.input): 
         sys.exit(1) 
-    else: validate_input(args.config)
+    if not validate_input(args.config):
+        sys.exit(1)
     try: 
         data = load_data(args.input)
         config = load_data(args.config)
     except ValueError: 
         sys.exit(1)
-    df_original = data.copy()
+    required_columns = config["validation"]["required_columns"]
+    numeric_columns = config["validation"]["numeric_columns"]
     try: 
-        cleaned = process_data(data, config)
+        validated = validate_dataframe(data,required_columns, numeric_columns)
+    except ValueError:
+        sys.exit(1)
+    logger.info(f"Validated: {len(data)} to {len(validated)}")
+    df_original = validated.copy()
+    try: 
+        cleaned = process_data(validated, config)
     except ValueError: 
         sys.exit(1)
     report = create_cleaning_report(df_original, cleaned)
-    print(report)
     logger.info(f"Processing results{len(df_original)} to {len(cleaned)} rows")
 
-    cleaned.to_csv(args.output, index=False)
-    logger.info(f"Saved clean results")
+    saved_path = save_data(cleaned, args.output)
+    logger.info(f"Save clean data{saved_path}")
+    print(report)
 
 
 

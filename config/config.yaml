@@ -1,3 +1,13 @@
+validation:
+  required_columns:
+    - name
+    - category
+    - status 
+    - record_id
+    - rating
+  numeric_columns:
+    - record_id
+    - rating
 processing:
   remove_duplicates: true
   missing:
@@ -6,6 +16,6 @@ processing:
   outliers:
     enabled: true
     columns:
-      - Score
+      - rating # replace this with new numeric colum 
     method: "iqr"
     threshold: 1.5 
